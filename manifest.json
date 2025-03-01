@@ -1,0 +1,25 @@
+{
+    "manifest_version": 3,
+    "name": "Chroma Scripts",
+    "version": "1.0",
+    "description": "",
+    "permissions": ["activeTab", "scripting", "webNavigation"],
+    "content_scripts": [
+        {
+            "matches": ["*://*/*"],
+            "run_at": "document_start",
+            "js": ["lazydarkmode.js"]
+        },
+        {
+            "matches": ["*://youtube.com/*", "*://*.youtube.com/*"],
+            "run_at": "document_start",
+            "js": ["nochat.js"],
+            "all_frames": true
+        },
+        {
+            "matches": ["*://youtube.com/*", "*://*.youtube.com/*"],
+            "run_at": "document_end",
+            "css": ["theatermode.css"]
+        }
+    ]
+}

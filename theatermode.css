@@ -1,0 +1,18 @@
+ytd-watch-flexy[theater] #player-full-bleed-container {
+    position: fixed !important;
+    inset: 0 !important;
+    display: block !important;
+    min-height: auto !important;
+    max-height: none !important;
+    min-width: auto !important;
+    max-width: none !important;
+    height: 100vh !important;
+    width: 100vw !important;
+    overflow: hidden !important;
+    z-index: 9999;
+    background: black;
+}
+
+#chat {
+    display: none;
+}
