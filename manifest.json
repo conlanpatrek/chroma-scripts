@@ -2,7 +2,7 @@
     "manifest_version": 3,
     "name": "Chroma Scripts",
     "version": "1.0",
-    "description": "",
+    "description": "Just a collection of scripts that make the internet a better place",
     "permissions": ["activeTab", "scripting", "webNavigation"],
     "content_scripts": [
         {
