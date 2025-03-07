@@ -148,7 +148,7 @@ class KeyBindings
     constructor ()
     {
         // Listen for events
-        window.addEventListener('keydown', this.handleKeyPress, { capture: true })
+        window.addEventListener('keydown', this.handleKeyPress, { capture: true, passive: true })
         window.addEventListener('message', this.handleMessage)
     }
 
