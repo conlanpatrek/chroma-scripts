@@ -3,7 +3,7 @@
     "name": "Chroma Scripts",
     "version": "1.0",
     "description": "Just a collection of scripts that make the internet a better place",
-    "permissions": ["activeTab", "scripting", "webNavigation"],
+    "permissions": ["storage"],
     "content_scripts": [
         {
             "matches": ["*://*/*"],
