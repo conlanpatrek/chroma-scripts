@@ -20,6 +20,7 @@ const SVGFilter = `
         </filter>
     </svg>
 `
+const isChild = window.self !== window.top
 
 /**
  * This class manages the local state for LDM
@@ -147,39 +148,57 @@ class KeyBindings
     constructor ()
     {
         // Listen for events
-        document.addEventListener('keypress', this.handleKeyPress)
+        window.addEventListener('keydown', this.handleKeyPress, { capture: true })
+        window.addEventListener('message', this.handleMessage)
     }
 
     destructor ()
     {
         // Stop listening
-        document.removeEventListener('keypress', this.handleKeyPress)
+        window.removeEventListener('keydown', this.handleKeyPress)
+        window.removeEventListener('message', this.handleMessage)
+    }
+
+    handleMessage = (event) =>
+    {
+        try {
+            const data = JSON.parse(event.data)
+            if (data.chroma !== 'scripts') return
+            this.handleKeyPress(data)
+        } catch (e) {
+            // do nothing
+        }
     }
 
     /**
      * The bound handler for the keypress event.
      *
-     * @param {KeyboardEvent} event 
+     * @param {{key: string}} event 
      */
-    handleKeyPress = (event) =>
-    {
-        if (!this.keys[event.key]) return
-        for (const binding of this.keys[event.key]) {
-            this.safeCall(binding, event)
+    handleKeyPress = isChild
+        ? (event) =>
+        {
+            if (!this.keys[event.key]) return
+            window.top?.postMessage(JSON.stringify({ key: event.key, chroma: 'scripts' }))
         }
-    }
+        : (event) =>
+        {
+            if (!this.keys[event.key]) return
+            for (const binding of this.keys[event.key]) {
+                this.safeCall(binding)
+            }
+        }
 
     /**
      * Call a function safely. Catches and logs errors but does not
      * interrupt execution.
      *
      * @param {KeyBinding} binding 
-     * @param {KeyboardEvent} args 
      */
-    safeCall (binding, args)
+    safeCall (binding)
     {
         try {
-            binding(args)
+            binding()
         } catch (e) {
             console.error(e)
         }

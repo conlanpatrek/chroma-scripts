@@ -8,7 +8,9 @@
         {
             "matches": ["*://*/*"],
             "run_at": "document_start",
-            "js": ["lazydarkmode.js"]
+            "js": ["lazydarkmode.js"],
+            "match_about_blank": true,
+            "all_frames": true
         },
         {
             "matches": ["*://youtube.com/*", "*://*.youtube.com/*"],
