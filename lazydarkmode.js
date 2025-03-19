@@ -30,6 +30,7 @@ const filterStyle = `
         html[data-ldm="invert-no-media"],
         html[data-ldm="invert-no-media"] img,
         html[data-ldm="invert-no-media"] video,
+        html[data-ldm="invert-no-media"] [style*=background-image],
         html[data-ldm="invert-no-media"] iframe[src*="youtube.com/embed/"] {
             filter: invert(1);
         }
@@ -41,7 +42,8 @@ const filterStyle = `
         html[data-ldm="luminance-no-media"],
         html[data-ldm="luminance-no-media"] img,
         html[data-ldm="luminance-no-media"] video,
-        html[data-ldm="luminance-no-media"] iframe[src*="youtube.com/embed/"]  {
+        html[data-ldm="luminance-no-media"] [style*=background-image],
+        html[data-ldm="luminance-no-media"] iframe[src*="youtube.com/embed/"] {
             filter: url(#invert-luminance);
         }
     </style>
