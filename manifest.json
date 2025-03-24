@@ -9,6 +9,7 @@
             "matches": ["*://*/*"],
             "run_at": "document_start",
             "js": ["lazydarkmode.js"],
+            "css": ["lazydarkmode.css"],
             "match_about_blank": true,
             "all_frames": true
         },

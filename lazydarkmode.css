@@ -1,0 +1,11 @@
+html[data-ldm="invert"],
+html[data-ldm="invert-no-media"] {
+    filter: url(#premultiply) invert(1) hue-rotate(180deg);
+}
+
+html[data-ldm="invert-no-media"] img,
+html[data-ldm="invert-no-media"] video,
+html[data-ldm="invert-no-media"] [style*=background-image],
+html[data-ldm="invert-no-media"] iframe[src*="youtube.com/embed/"] {
+    filter: invert(1) hue-rotate(180deg);
+}

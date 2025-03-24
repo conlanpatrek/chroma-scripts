@@ -1,55 +1,31 @@
-const SVGFilter = `
-    <svg xmlns="http://www.w3.org/2000/svg" width="0" height="0" style="display:none;">
-        <filter id="invert-luminance" color-interpolation-filters="sRGB">
-            <!-- Approximate RGB to HSL (Extract Luminance) -->
-            <feColorMatrix type="matrix" values="
-                0.2126  0.7152  0.0722  0  0
-                0.2126  0.7152  0.0722  0  0
-                0.2126  0.7152  0.0722  0  0
-                0       0       0       1  0" result="lum"/>
-    
-            <!-- Invert the Lightness (L -> 1 - L) -->
-            <feComponentTransfer in="lum" result="mul">
-                <feFuncR type="table" tableValues="1 0"/>
-                <feFuncG type="table" tableValues="1 0"/>
-                <feFuncB type="table" tableValues="1 0"/>
-            </feComponentTransfer>
-    
-            <!-- Blend back with original colors using an overlay -->
-            <feBlend in="mul" in2="SourceGraphic" mode="luminosity"/>
-        </filter>
-    </svg>
-`
-
-const filterStyle = `
-    <style>
-        html[data-ldm="invert"] {
-            filter: invert(1);
-        }
-
-        html[data-ldm="invert-no-media"],
-        html[data-ldm="invert-no-media"] img,
-        html[data-ldm="invert-no-media"] video,
-        html[data-ldm="invert-no-media"] [style*=background-image],
-        html[data-ldm="invert-no-media"] iframe[src*="youtube.com/embed/"] {
-            filter: invert(1);
-        }
-
-        html[data-ldm="luminance"] {
-            filter: url(#invert-luminance);
-        }
-
-        html[data-ldm="luminance-no-media"],
-        html[data-ldm="luminance-no-media"] img,
-        html[data-ldm="luminance-no-media"] video,
-        html[data-ldm="luminance-no-media"] [style*=background-image],
-        html[data-ldm="luminance-no-media"] iframe[src*="youtube.com/embed/"] {
-            filter: url(#invert-luminance);
-        }
-    </style>
-`
 
 const isChild = window.self !== window.top
+
+const earliestStyle = document.createElement('style')
+
+// recalculate the background
+setInterval(() => {
+    if (earliestStyle.innerHTML === '') return
+    updateHTMLBackground()
+}, 1000)
+
+function updateHTMLBackground ()
+{
+    earliestStyle.innerHTML = '' // wipe existing styles.
+
+    // Update styles
+    earliestStyle.innerHTML = `
+        @layer lowest {
+            html {
+                background-color: ${getViewportBackgroundColor()};
+            }
+        }
+    `.split('\n').map(row => row.trim()).join('\n')
+
+    // Move to start of head for lowest possible specificity
+    if (document.head.children[0] !== earliestStyle)
+        document.head.prepend(earliestStyle)
+}
 
 /**
  * This class manages the local state for LDM
@@ -71,12 +47,10 @@ class LazyDarkMode
     // Whether lazy dark mode is enabled
     enabled = false
 
-    // The inversion technique. For page load, we'll use invert() until
-    // we have a document body to append an svg filter to.
-    filter = 'invert'
-
+    // Whether or not we should ignore media (img, video, iframes)
     ignoreMedia = false
 
+    // Default to off
     defaultValue = LazyDarkMode.OFF
 
     constructor(options)
@@ -109,6 +83,7 @@ class LazyDarkMode
         this.enabled = false
         localStorage.setItem(LazyDarkMode.DARK_MODE, LazyDarkMode.OFF)
         LazyDarkMode.html.removeAttribute('data-ldm')
+        earliestStyle.innerHTML = ''
     }
 
     /**
@@ -121,23 +96,13 @@ class LazyDarkMode
         this.enabled = true
         if (!skipUpdate) localStorage.setItem(LazyDarkMode.DARK_MODE, LazyDarkMode.ON)
         LazyDarkMode.html.setAttribute('data-ldm', this.dataAttr)
+        updateHTMLBackground()
     }
 
     get dataAttr ()
     {
         const suffix = this.ignoreMedia ? '-no-media' : ''
-        return `${this.filter}${suffix}`
-    }
-
-    /**
-     * Change the filter technique, and live update the doc if necessary.
-     *
-     * @param {string} filter 
-     */
-    setFilter (filter)
-    {
-        this.filter = filter
-        if (this.enabled) this.enable()
+        return `invert${suffix}`
     }
 
     /**
@@ -197,6 +162,7 @@ class Menu
 
     async createElement ()
     {
+        // todo: beter.
         this.element = await appendHTML(`
             <dialog class="∂">
                 <style>
@@ -308,17 +274,46 @@ class Menu
 
         this.element.addEventListener('click', e =>
         {
-            if (!this.isOpen) return
-            const rect = this.element.getBoundingClientRect()
-            if (e.clientX < rect.left) return this.close()
-            if (e.clientX > rect.right) return this.close()
-            if (e.clientY < rect.top) return this.close()
-            if (e.clientY > rect.bottom) return this.close()
+            if (this.isClosed) return
+            if (this._isInsideElement(e.clientX, e.clientY, this.element)) return
+            this.close()
         })
 
         const ignoreMediaInput = document.getElementById('∂-ignore-media')
         ignoreMediaInput.checked = this.ldm.ignoreMedia
         ignoreMediaInput.addEventListener('change', this.handleIgnoreMediaToggle)
+    }
+
+    /**
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {HTMLElement} element
+     */
+    _isOutsideElement (x, y, element)
+    {
+        const rect = element.getBoundingClientRect()
+    
+        if (x < rect.left) return true
+        if (x > rect.right) return true
+        if (y < rect.top) return true
+        if (y > rect.bottom) return true
+    
+        return false
+    }
+
+    /**
+     * @param {Number} x 
+     * @param {Number} y 
+     * @param {HTMLElement} element
+     */
+    _isInsideElement (x, y, element)
+    {
+        return !this._isOutsideElement(x, y, element)
+    }
+
+    get isClosed ()
+    {
+        return !this.isOpen
     }
 
     toggle ()
@@ -475,6 +470,41 @@ async function appendHTML (html)
     return output.length <= 1 ? output[0] : output
 }
 
+const lerp = (a, b, t) => a + (b - a) * t
+
+function getViewportBackgroundColor ()
+{
+    let color = getElementColor(document.documentElement)
+    if (color[3] === 0 && document.body) color = getElementColor(document.body)
+    if (color[3] === 0) return 'white'
+
+    const a = color[3]
+    const r = lerp(255, color[0], a) >> 0
+    const g = lerp(255, color[1], a) >> 0
+    const b = lerp(255, color[2], a) >> 0
+
+    return `rgb(${r}, ${g}, ${b})`
+}
+
+function getElementColor (maybeElement)
+{
+    if (maybeElement instanceof Element === false) return [0, 0, 0, 0]
+    return parseColor(getComputedStyle(maybeElement).backgroundColor)
+}
+
+/**
+ * @param {string} color 
+ */
+function parseColor (color)
+{
+    const open = color.indexOf('(')
+    const close = color.indexOf(')')
+    const op = color.substring(open + 1, close).split(',')
+    if (op.length === 3) op.push(1)
+    if (op.length !== 4) console.error(color, op)
+    return op.map(val => parseInt(val, 10))
+}
+
 async function init ()
 {
     const options = await chrome.storage.sync.get(['ignoreMedia'])
@@ -487,10 +517,6 @@ async function init ()
     keybindings.on('Î', () => menu.toggle())
 
     await menu.createElement() // eager creation
-    await appendHTML(SVGFilter)
-    await appendHTML(filterStyle)
-
-    darkMode.setFilter('luminance')
 }
 
 init()
