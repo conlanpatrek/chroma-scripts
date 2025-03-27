@@ -24,5 +24,10 @@
             "run_at": "document_end",
             "css": ["theatermode.css"]
         }
-    ]
+    ],
+    "browser_specific_settings": {
+        "gecko": {
+            "id": "chroma-scripts@chromafish.com"
+        }
+    }
 }

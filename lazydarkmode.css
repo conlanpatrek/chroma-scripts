@@ -1,6 +1,6 @@
 html[data-ldm="invert"],
 html[data-ldm="invert-no-media"] {
-    filter: url(#premultiply) invert(1) hue-rotate(180deg);
+    filter: invert(1) hue-rotate(180deg);
 }
 
 html[data-ldm="invert-no-media"] img,
