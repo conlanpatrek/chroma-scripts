@@ -1,0 +1,104 @@
+<style>
+    .∂, .∂ * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: none;
+        background: transparent;
+        font-size: inherit;
+    }
+
+    .∂ {
+        border: none;
+        transition:
+            display 0.15s allow-discrete,
+            overlay 0.15s allow-discrete,
+            opacity 0.15s ease-in-out,
+            transform 0.15s ease-in-out;
+
+        transform: translateY(10px);
+        opacity: 0;
+    }
+
+    .∂::backdrop {
+        transition:
+            background-color 0.15s ease-in-out,
+            backdrop-filter 0.15s ease-in-out;
+        backdrop-filter: blur(0);
+        background-color: rgba(0, 0, 0, 0);
+        opacity: 1;
+    }
+
+    .∂[open] {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+
+        @starting-style {
+            transform: translateY(10px);
+            opacity: 0;
+        }
+    }
+
+    .∂[open]::backdrop {
+        backdrop-filter: blur(20px);
+        background-color: rgba(0, 0, 0, 0.05);
+
+        @starting-style {
+            backdrop-filter: blur(0);
+            background-color: rgba(0, 0, 0, 0);
+        }
+    }
+
+    .∂ {
+        border-radius: 4px;
+        box-shadow: 5px 10px 10px rgba(0,0,0,0.4);
+        padding: 20px;
+        background: #0a0a0a;
+        color: white;
+        margin: auto;
+        font-size: 16px;
+        border: 1px solid #333;
+    }
+
+    .∂-content {
+        all: unset;
+    }
+
+    .∂-content strong {
+        display: block;
+        margin-bottom: 1em;
+        font-size: 1.2em;
+        color: #246789;
+    }
+
+    .∂-content label {
+        display: block;
+        margin-top: 0.4em;
+    }
+
+    .∂-content input {
+        margin-right: 5px;
+    }
+
+    .∂-content button {
+        display: block;
+        width: 100%;
+        margin: 0;
+        margin-top: 1em;
+        border-radius: 4px;
+        background: #222;
+        border: none;
+        color: white;
+        cursor: pointer;
+        padding: 0.8em;
+    }
+</style>
+
+<form method="dialog" class="∂-content">
+    <strong>Lazy Dark Mode Setting</strong>
+    <label>
+        <input type="checkbox" id="∂-ignore-media"/>
+        Preserve images and videos
+    </label>
+    <button>Close</button>
+</form>

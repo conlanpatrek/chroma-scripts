@@ -6,6 +6,6 @@ html[data-ldm="invert-no-media"] {
 html[data-ldm="invert-no-media"] img,
 html[data-ldm="invert-no-media"] video,
 html[data-ldm="invert-no-media"] [style*=background-image],
-html[data-ldm="invert-no-media"] iframe[src*="youtube.com/embed/"] {
+html[data-ldm="invert-no-media"] iframe {
     filter: invert(1) hue-rotate(180deg);
 }
