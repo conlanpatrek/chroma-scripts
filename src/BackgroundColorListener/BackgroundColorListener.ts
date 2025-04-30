@@ -26,7 +26,7 @@ export class BackgroundColorListener extends SimpleEmitter<Color>
     private listen()
     {
         if (this.listening) return
-        this.timeout = setTimeout(this.tick, POLL_INTERVAL)
+        this.timeout = setInterval(this.tick, POLL_INTERVAL)
     }
 
     /**
@@ -35,7 +35,7 @@ export class BackgroundColorListener extends SimpleEmitter<Color>
     private stopListening()
     {
         if (!this.listening) return
-        clearTimeout(this.timeout)
+        clearInterval(this.timeout)
         this.timeout = undefined
     }
 

@@ -38,7 +38,7 @@ function  parseColor (color: string): ParsedColor
     const open = color.indexOf('(')
     const close = color.indexOf(')')
     const [r, g, b, a] = color.substring(open + 1, close).split(',')
-    return [int(r), int(g), int(b), int(a)]
+    return [int(r), int(g), int(b), int(a, 1)]
 }
 
 /**

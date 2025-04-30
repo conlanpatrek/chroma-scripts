@@ -12,12 +12,14 @@ endif
 
 ESBUILD = $(ESBUILD_BIN) --bundle --loader:.html=text $(OPTS)
 
-.PHONY: clean all
+.PHONY: clean all build
 
 clean:
 	rm -rf $(DIST)
 
 all: dist/lazydarkmode.js dist/lazydarkmode.css dist/theatermode.css dist/nochat.js
+
+build: clean all
 
 dist/lazydarkmode.js: $(ESBUILD_BIN) $(TS_FILES)
 	$(ESBUILD) $(SRC)/lazydarkmode.entry.ts --outfile=$(DIST)/lazydarkmode.js

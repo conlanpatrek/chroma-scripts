@@ -5,6 +5,7 @@ import { waitForHead } from 'chroma/util/waitFor'
 const earliestStyle = document.createElement('style')
 
 let enabled = true
+const rules = "display: block; content: ''; position: fixed; inset: 0; z-index: -999999;"
 
 // Ensure the background color is set explicitly
 async function updateHTMLBackground(color: Color = backgroundColor.current)
@@ -16,7 +17,7 @@ async function updateHTMLBackground(color: Color = backgroundColor.current)
     }
 
     // Update styles
-    earliestStyle.innerHTML = `@layer lowest { html { background-color: ${color}; } }`
+    earliestStyle.innerHTML = `@layer lowest { html::before { background-color: ${color}; ${rules} } }`
 
     // Move to start of head for lowest possible specificity
     const head = await waitForHead()
