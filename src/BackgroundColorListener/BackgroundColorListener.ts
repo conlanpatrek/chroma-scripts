@@ -4,7 +4,7 @@ import { SimpleEmitter } from 'chroma/util/Emitter'
 import { getBackgroundColor } from './getBackgroundColor'
 import { safeCall } from 'chroma/util/safeCall'
 
-const POLL_INTERVAL = 1000
+const POLL_INTERVAL = 0
 
 export class BackgroundColorListener extends SimpleEmitter<Color>
 {
@@ -26,7 +26,9 @@ export class BackgroundColorListener extends SimpleEmitter<Color>
     private listen()
     {
         if (this.listening) return
-        this.timeout = setInterval(this.tick, POLL_INTERVAL)
+        // @ts-ignore
+        if (POLL_INTERVAL === 0) this.tick()
+        else this.timeout = setInterval(this.tick, POLL_INTERVAL)
     }
 
     /**
@@ -35,7 +37,9 @@ export class BackgroundColorListener extends SimpleEmitter<Color>
     private stopListening()
     {
         if (!this.listening) return
-        clearInterval(this.timeout)
+        // @ts-ignore
+        if (POLL_INTERVAL === 0) cancelAnimationFrame(this.timeout)
+        else clearInterval(this.timeout)
         this.timeout = undefined
     }
 
@@ -43,7 +47,11 @@ export class BackgroundColorListener extends SimpleEmitter<Color>
      * The poll handler. Gets the current background color, checks if it's changed,
      * and if so, notifies handlers.
      */
-    private tick = () => {
+    private tick = () =>
+    {
+        // @ts-ignore
+        if (POLL_INTERVAL === 0) this.timeout = requestAnimationFrame(this.tick)
+        
         const color = getBackgroundColor()
         if (color === this.currentColor) return
         
