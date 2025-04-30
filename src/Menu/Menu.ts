@@ -6,41 +6,52 @@ export class Menu
 {
     isOpen: boolean = false
 
-    element: HTMLDialogElement
+    container: HTMLDivElement
+    dialog: HTMLDialogElement
+    shadowRoot: ShadowRoot
 
     ldm: LazyDarkMode
 
     constructor(ldm: LazyDarkMode)
     {
         this.ldm = ldm
-        this.element = this.createElement()
+        this.shadowRoot = this.createElement()
         this.appendToBody()
     }
 
     async appendToBody()
     {
         const body = await waitForBody()
-        body.append(this.element)
+        body.append(this.container)
     }
 
-    createElement(): HTMLDialogElement
+    createElement(): ShadowRoot
     {
-        const element = document.createElement('dialog')
-        element.className = '∂'
-        element.innerHTML = menuMarkup
+        this.container = this.container ?? document.createElement('div')
 
-        element.addEventListener('click', e =>
+        this.container.style.position = 'absolute !important'
+        this.container.style.width = '0'
+        this.container.style.height = '0'
+        this.container.style.left = '0'
+        this.container.style.top = '0'
+
+        const shadow = this.container.attachShadow({ mode: 'open' })
+        shadow.innerHTML = menuMarkup
+
+        this.dialog = shadow.querySelector('dialog')!
+
+        this.dialog.addEventListener('click', e =>
         {
             if (this.isClosed) return
-            if (this.isInsideElement(e.clientX, e.clientY, element)) return
+            if (this.isInsideElement(e.clientX, e.clientY, this.dialog)) return
             this.close()
         })
 
-        const ignoreMediaInput = element.querySelector('#∂-ignore-media') as HTMLInputElement
+        const ignoreMediaInput = shadow.querySelector('#∂-ignore-media') as HTMLInputElement
         ignoreMediaInput.checked = this.ldm.config.ignoreMedia
         ignoreMediaInput.addEventListener('change', this.handleIgnoreMediaToggle)
 
-        return element
+        return shadow
     }
 
     private isOutsideElement (x: number, y: number, element: HTMLElement)
@@ -73,16 +84,16 @@ export class Menu
 
     open ()
     {
-        if (this.isOpen || !this.element) return
+        if (this.isOpen || !this.shadowRoot) return
         this.isOpen = true
-        this.element.showModal()
+        this.dialog.showModal()
     }
 
     close ()
     {
-        if (!this.isOpen || !this.element) return
+        if (!this.isOpen || !this.shadowRoot) return
         this.isOpen = false
-        this.element.close()
+        this.dialog.close()
     }
 
     handleIgnoreMediaToggle = (event: Event) =>
