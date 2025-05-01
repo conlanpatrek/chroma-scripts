@@ -9,7 +9,7 @@ interface SimpleKeyEvent
  * This class listens for keypress and allows setting different behaviors
  * for different keys.
  */
-export class KeyBindings extends ComplexEmitter<string, void>
+export class KeyBindings extends ComplexEmitter<{[k: string]: void}>
 {
     constructor ()
     {

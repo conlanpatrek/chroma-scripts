@@ -33,6 +33,11 @@ export class LazyDarkMode extends SimpleEmitter<boolean>
 {
     config: LazyDarkModeConfig
 
+    get enabled()
+    {
+        return this.config.enabled
+    }
+
     constructor(config?: Partial<LazyDarkModeConfig>)
     {
         super()
@@ -61,13 +66,12 @@ export class LazyDarkMode extends SimpleEmitter<boolean>
      * 
      * Also updates local storage.
      */
-    disable ()
+    disable (skipUpdate: boolean = false)
     {
         this.config.enabled = false
-        localStorage.setItem(DARK_MODE, OFF)
+        if (!skipUpdate) localStorage.setItem(DARK_MODE, OFF)
         html.removeAttribute('data-ldm')
         this.emit(this.config.enabled)
-        // earliestStyle.innerHTML = ''
     }
 
     /**
@@ -81,7 +85,6 @@ export class LazyDarkMode extends SimpleEmitter<boolean>
         if (!skipUpdate) localStorage.setItem(DARK_MODE, ON)
         html.setAttribute('data-ldm', this.dataAttr)
         this.emit(this.config.enabled)
-        // updateHTMLBackground()
     }
 
     get dataAttr ()
